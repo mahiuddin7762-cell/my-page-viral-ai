@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#10101a">
+  <meta name="description" content="My Page Viral AI — prepare short vertical clips for your Facebook Page.">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <title>My Page Viral AI</title>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="My Page Viral AI home">
+        <span class="brand-icon">✦</span>
+        <span><strong>My Page</strong><b>Viral AI</b></span>
+      </a>
+      <span class="beta-pill"><i></i> BETA</span>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="eyebrow"><span class="sparkle">✦</span> YOUR SHORT-VIDEO WORKSPACE</div>
+        <h1>Long video in.<br><span>Shorts out.</span></h1>
+        <p>Find the best moments and prepare vertical clips for your Facebook Page — all from your phone.</p>
+        <div class="hero-chips"><span>✂️ AI clipping</span><span>▣ 9:16 vertical</span><span>CC Captions</span></div>
+      </section>
+
+      <section class="panel" aria-labelledby="source-title">
+        <div class="section-heading">
+          <span class="step-number">01</span>
+          <div><h2 id="source-title">Add a video</h2><p>Paste a video link you own or have permission to use.</p></div>
+        </div>
+        <label class="field-label" for="video-url">YouTube video URL</label>
+        <div class="url-field">
+          <span class="link-icon">↗</span>
+          <input id="video-url" type="url" inputmode="url" placeholder="https://youtube.com/watch?v=..." autocomplete="url">
+          <button id="paste-btn" class="paste-btn" type="button">Paste</button>
+        </div>
+        <div class="hint" id="url-hint">Use your own video or content you have permission to republish.</div>
+
+        <div class="section-heading compact">
+          <span class="step-number">02</span>
+          <div><h2>Choose clip length</h2><p>Pick the target duration for your Reel.</p></div>
+        </div>
+        <div class="duration-options" role="group" aria-label="Clip duration">
+          <button class="duration-option selected" data-duration="30" type="button"><strong>30 sec</strong><small>Quick highlight</small><span class="check">✓</span></button>
+          <button class="duration-option" data-duration="40" type="button"><strong>40 sec</strong><small>More context</small><span class="check">✓</span></button>
+        </div>
+
+        <div class="settings-row">
+          <div><strong>Vertical format</strong><small>Made for Facebook Reels</small></div>
+          <span class="format-badge">9:16</span>
+        </div>
+        <div class="settings-row">
+          <div><strong>Auto captions</strong><small>Subtitle generation will be connected in the processing step</small></div>
+          <span class="status-badge">Planned</span>
+        </div>
+        <button id="generate-btn" class="primary-btn" type="button"><span>✦</span> Prepare my clip <span class="arrow">→</span></button>
+        <p class="small-note">This starter version is the website interface. AI clipping and publishing need a secure processing server and account connection.</p>
+      </section>
+
+      <section class="panel output-panel" aria-labelledby="output-title">
+        <div class="section-heading">
+          <span class="step-number">03</span>
+          <div><h2 id="output-title">Your clips</h2><p>Generated videos and publishing status will appear here.</p></div>
+        </div>
+        <div id="empty-state" class="empty-state">
+          <div class="empty-art"><span>▶</span><i>✦</i><b>9:16</b></div>
+          <strong>Your first clip is waiting</strong>
+          <p>Add a video link above to begin setting up your workflow.</p>
+        </div>
+        <div id="job-status" class="job-status" hidden></div>
+        <div class="publish-card">
+          <div class="fb-icon">f</div>
+          <div class="publish-copy"><strong>Facebook Page</strong><small>Connect your Page to publish clips automatically.</small></div>
+          <button id="connect-btn" class="secondary-btn" type="button">Connect</button>
+        </div>
+      </section>
+
+      <section class="notice">
+        <span>ⓘ</span><p><strong>Copyright matters.</strong> Cropping or adding effects does not remove copyright. Use your own videos, licensed content, or videos you have permission to republish.</p>
+      </section>
+    </main>
+    <nav class="bottom-nav" aria-label="Main navigation">
+      <a class="nav-item active" href="#"><span>⌂</span>Home</a>
+      <a class="nav-item" href="#output-title"><span>▣</span>My clips</a>
+      <button class="nav-item" id="settings-btn" type="button"><span>⚙</span>Settings</button>
+    </nav>
+    <footer>MY PAGE VIRAL AI <span>•</span> BUILT FOR MOBILE</footer>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
