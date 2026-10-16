@@ -7,7 +7,11 @@ const connectBtn = document.getElementById("connect-btn");
 const settingsBtn = document.getElementById("settings-btn");
 const toast = document.getElementById("toast");
 
-const SERVER_URL = "https://overgrown-penalize-lapel.ngrok-free.dev";
+const response = await fetch(`${SERVER_URL}/health`, {
+  method: "GET",
+  mode: "cors",
+  cache: "no-store"
+});
 
 let clipDuration = 30;
 let toastTimer;
