@@ -1,3 +1,5 @@
+const SERVER_URL = "https://overgrown-penalize-lapel.ngrok-free.dev";
+
 const videoUrl = document.getElementById("video-url");
 const pasteBtn = document.getElementById("paste-btn");
 const generateBtn = document.getElementById("generate-btn");
@@ -7,20 +9,17 @@ const connectBtn = document.getElementById("connect-btn");
 const settingsBtn = document.getElementById("settings-btn");
 const toast = document.getElementById("toast");
 
-const response = await fetch(`${SERVER_URL}/health`, {
-  method: "GET",
-  mode: "cors",
-  cache: "no-store"
-});
-
 let clipDuration = 30;
 let toastTimer;
 
 function showToast(message) {
+  if (!toast) return;
+
   toast.textContent = message;
   toast.classList.add("show");
 
   clearTimeout(toastTimer);
+
   toastTimer = setTimeout(() => {
     toast.classList.remove("show");
   }, 3000);
@@ -39,21 +38,23 @@ document.querySelectorAll(".duration-option").forEach((button) => {
   });
 });
 
-pasteBtn.addEventListener("click", async () => {
-  try {
-    const text = await navigator.clipboard.readText();
+if (pasteBtn && videoUrl) {
+  pasteBtn.addEventListener("click", async () => {
+    try {
+      const text = await navigator.clipboard.readText();
 
-    if (text) {
-      videoUrl.value = text.trim();
-      showToast("वीडियो लिंक पेस्ट हो गया");
-    } else {
-      showToast("पहले वीडियो लिंक कॉपी करें");
+      if (text) {
+        videoUrl.value = text.trim();
+        showToast("वीडियो लिंक पेस्ट हो गया");
+      } else {
+        showToast("पहले वीडियो लिंक कॉपी करें");
+      }
+    } catch {
+      videoUrl.focus();
+      showToast("लिंक बॉक्स में दबाकर Paste चुनें");
     }
-  } catch {
-    videoUrl.focus();
-    showToast("लिंक बॉक्स में दबाकर Paste चुनें");
-  }
-});
+  });
+}
 
 function isValidYouTubeUrl(value) {
   try {
@@ -75,60 +76,80 @@ function isValidYouTubeUrl(value) {
   }
 }
 
-generateBtn.addEventListener("click", async () => {
-  const link = videoUrl.value.trim();
+if (generateBtn && videoUrl) {
+  generateBtn.addEventListener("click", async () => {
+    const link = videoUrl.value.trim();
 
-  if (!link) {
-    videoUrl.focus();
-    showToast("पहले YouTube वीडियो का लिंक डालें");
-    return;
-  }
-
-  if (!isValidYouTubeUrl(link)) {
-    showToast("सही YouTube वीडियो लिंक डालें");
-    return;
-  }
-
-  generateBtn.disabled = true;
-  emptyState.hidden = true;
-  jobStatus.hidden = false;
-  jobStatus.textContent = "सर्वर से संपर्क किया जा रहा है…";
-
-  try {
-    const response = await fetch(`${SERVER_URL}/health`);
-
-    if (!response.ok) {
-      throw new Error("Server response error");
+    if (!link) {
+      videoUrl.focus();
+      showToast("पहले YouTube वीडियो का लिंक डालें");
+      return;
     }
 
-    const data = await response.json();
-
-    if (data.status !== "ok") {
-      throw new Error("Server health check failed");
+    if (!isValidYouTubeUrl(link)) {
+      showToast("सही YouTube वीडियो लिंक डालें");
+      return;
     }
 
-    jobStatus.textContent =
-      `सर्वर कनेक्ट हो गया है! आपने ${clipDuration} सेकंड चुने हैं। ` +
-      "वीडियो बनाने वाला फ़ंक्शन अभी तैयार किया जाना बाकी है।";
+    generateBtn.disabled = true;
 
-    showToast("सर्वर कनेक्शन सफल!");
-  } catch (error) {
-    jobStatus.textContent =
-      "सर्वर से संपर्क नहीं हो पाया। Colab चालू है या नहीं, जाँचें।";
+    if (emptyState) emptyState.hidden = true;
 
-    showToast("Server connection error");
-  } finally {
-    generateBtn.disabled = false;
-  }
-});
+    if (jobStatus) {
+      jobStatus.hidden = false;
+      jobStatus.textContent = "सर्वर से संपर्क किया जा रहा है…";
+    }
 
-connectBtn.addEventListener("click", () => {
-  showToast("Facebook कनेक्शन अभी सेटअप होना बाकी है");
-});
+    try {
+      const response = await fetch(`${SERVER_URL}/health`, {
+        method: "GET",
+        mode: "cors",
+        cache: "no-store"
+      });
 
-settingsBtn.addEventListener("click", () => {
-  showToast("सेटिंग्स जल्द जोड़ी जाएँगी");
-});
+      if (!response.ok) {
+        throw new Error("Server response error");
+      }
+
+      const data = await response.json();
+
+      if (data.status !== "ok") {
+        throw new Error("Server health check failed");
+      }
+
+      if (jobStatus) {
+        jobStatus.textContent =
+          `सर्वर कनेक्ट हो गया है! आपने ${clipDuration} सेकंड चुने हैं। ` +
+          "अभी वीडियो क्लिप बनाने की सुविधा सर्वर में जोड़नी बाकी है।";
+      }
+
+      showToast("सर्वर कनेक्शन सफल!");
+    } catch (error) {
+      console.error("Server connection error:", error);
+
+      if (jobStatus) {
+        jobStatus.textContent =
+          "सर्वर से संपर्क नहीं हो पाया। Colab और सर्वर लिंक जाँचें।";
+      }
+
+      showToast("Server connection error");
+    } finally {
+      generateBtn.disabled = false;
+    }
+  });
+}
+
+if (connectBtn) {
+  connectBtn.addEventListener("click", () => {
+    showToast("Facebook कनेक्शन अभी सेटअप होना बाकी है");
+  });
+}
+
+if (settingsBtn) {
+  settingsBtn.addEventListener("click", () => {
+    showToast("सेटिंग्स जल्द जोड़ी जाएँगी");
+  });
+}
 
 document.querySelectorAll('.nav-item[href="#"]').forEach((link) => {
   link.addEventListener("click", (event) => {
