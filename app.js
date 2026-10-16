@@ -1,12 +1,13 @@
 const videoUrl = document.getElementById("video-url");
 const pasteBtn = document.getElementById("paste-btn");
 const generateBtn = document.getElementById("generate-btn");
-const urlHint = document.getElementById("url-hint");
 const emptyState = document.getElementById("empty-state");
 const jobStatus = document.getElementById("job-status");
 const connectBtn = document.getElementById("connect-btn");
 const settingsBtn = document.getElementById("settings-btn");
 const toast = document.getElementById("toast");
+
+const SERVER_URL = "https://overgrown-penalize-lapel.ngrok-free.dev";
 
 let clipDuration = 30;
 let toastTimer;
@@ -21,7 +22,6 @@ function showToast(message) {
   }, 3000);
 }
 
-// Select 30-second or 40-second clip
 document.querySelectorAll(".duration-option").forEach((button) => {
   button.addEventListener("click", () => {
     document.querySelectorAll(".duration-option").forEach((item) => {
@@ -35,7 +35,6 @@ document.querySelectorAll(".duration-option").forEach((button) => {
   });
 });
 
-// Paste video link
 pasteBtn.addEventListener("click", async () => {
   try {
     const text = await navigator.clipboard.readText();
@@ -46,13 +45,12 @@ pasteBtn.addEventListener("click", async () => {
     } else {
       showToast("पहले वीडियो लिंक कॉपी करें");
     }
-  } catch (error) {
+  } catch {
     videoUrl.focus();
     showToast("लिंक बॉक्स में दबाकर Paste चुनें");
   }
 });
 
-// Check the YouTube link
 function isValidYouTubeUrl(value) {
   try {
     const url = new URL(value);
@@ -60,19 +58,20 @@ function isValidYouTubeUrl(value) {
 
     return (
       ["youtube.com", "m.youtube.com", "youtu.be"].includes(host) &&
-      (host === "youtu.be" ||
+      (
+        host === "youtu.be" ||
         url.pathname === "/watch" ||
         url.pathname.startsWith("/shorts/") ||
         url.pathname.startsWith("/embed/") ||
-        url.pathname.startsWith("/live/"))
+        url.pathname.startsWith("/live/")
+      )
     );
   } catch {
     return false;
   }
 }
 
-// Prepare clip button
-generateBtn.addEventListener("click", () => {
+generateBtn.addEventListener("click", async () => {
   const link = videoUrl.value.trim();
 
   if (!link) {
@@ -86,36 +85,50 @@ generateBtn.addEventListener("click", () => {
     return;
   }
 
+  generateBtn.disabled = true;
   emptyState.hidden = true;
   jobStatus.hidden = false;
+  jobStatus.textContent = "सर्वर से संपर्क किया जा रहा है…";
 
-  jobStatus.textContent =
-    `आपने ${clipDuration} सेकंड का क्लिप चुना है। ` +
-    "लिंक जाँच लिया गया है, लेकिन AI वीडियो प्रोसेसिंग सर्वर अभी कनेक्ट नहीं है।";
+  try {
+    const response = await fetch(`${SERVER_URL}/health`);
 
-  showToast("लिंक सही है! अगला कदम सर्वर कनेक्ट करना है।");
+    if (!response.ok) {
+      throw new Error("Server response error");
+    }
+
+    const data = await response.json();
+
+    if (data.status !== "ok") {
+      throw new Error("Server health check failed");
+    }
+
+    jobStatus.textContent =
+      `सर्वर कनेक्ट हो गया है! आपने ${clipDuration} सेकंड चुने हैं। ` +
+      "वीडियो बनाने वाला फ़ंक्शन अभी तैयार किया जाना बाकी है।";
+
+    showToast("सर्वर कनेक्शन सफल!");
+  } catch (error) {
+    jobStatus.textContent =
+      "सर्वर से संपर्क नहीं हो पाया। Colab चालू है या नहीं, जाँचें।";
+
+    showToast("Server connection error");
+  } finally {
+    generateBtn.disabled = false;
+  }
 });
 
-// Facebook connection
 connectBtn.addEventListener("click", () => {
   showToast("Facebook कनेक्शन अभी सेटअप होना बाकी है");
 });
 
-// Settings button
 settingsBtn.addEventListener("click", () => {
   showToast("सेटिंग्स जल्द जोड़ी जाएँगी");
 });
 
-// Navigation links
 document.querySelectorAll('.nav-item[href="#"]').forEach((link) => {
   link.addEventListener("click", (event) => {
     event.preventDefault();
-
-    if (link.classList.contains("brand")) return;
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   });
 });
